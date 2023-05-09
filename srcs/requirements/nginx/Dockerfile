@@ -1,21 +1,23 @@
 # Use the Debian Buster base image for this container
 FROM debian:buster
 
+RUN apt update -y
+RUN apt upgrade -y
 
 # intall vim to do vim stuff in container
-RUN apt-get install -y vim 
+RUN apt install vim -y 
 
 # install NGINX in container
 # -y is auto yes for install and updates
-RUN apt-get install -y nginx 
+RUN apt install nginx -y
 # update NGINX
-RUN apt-get update -y nginx
+# RUN apt update nginx -y
 
 
 # install OPENSSL in container
-RUN apt-get install -y OpenSSL
+RUN apt install openssl -y
 # update OPENSSL
-RUN apt-get update -y OpenSSL
+# RUN apt update OpenSSL -y
 
 
 # create a directory for the TLS files

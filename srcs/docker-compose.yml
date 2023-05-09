@@ -1,1 +1,72 @@
-lol
+version: '3'
+
+services:
+  # MariaDB service configuration
+  mariadb:
+    container_name: mariadb
+    networks:
+      - inception
+    build:
+      context: requirements/mariadb # Location of the MariaDB Dockerfile
+      dockerfile: Dockerfile
+    image: mariadb
+    env_file: .env # Environment variables file
+    volumes:
+      - mariadb:/var/lib/mysql # MariaDB data volume
+    restart: unless-stopped # Container restart policy
+    expose:
+      - "3306" # Expose MariaDB port
+
+  # Nginx service configuration
+  nginx:
+    container_name: nginx
+    volumes:
+      - wordpress:/var/www/wordpress # WordPress files volume
+    networks:
+      - inception
+    depends_on:
+      - wordpress # Nginx depends on the WordPress service
+    build:
+      context: requirements/nginx # Location of the Nginx Dockerfile
+      dockerfile: Dockerfile
+    env_file: .env # Environment variables file
+    ports:
+      - "443:443" # Expose Nginx port to the host machine
+    restart: on-failure # Container restart policy
+
+  # WordPress service configuration
+  wordpress:
+    container_name: wordpress
+    env_file: .env # Environment variables file
+    volumes:
+      - wordpress:/var/www/wordpress # WordPress files volume
+    networks:
+      - inception
+    build:
+      context: requirements/wordpress # Location of the WordPress Dockerfile
+      dockerfile: Dockerfile
+    depends_on:
+      - mariadb # WordPress depends on the MariaDB service
+    restart: on-failure # Container restart policy
+    expose:
+      - "9000" # Expose WordPress port for PHP-FPM connections
+
+# Volumes configuration
+volumes:
+  wordpress:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/Users/rpol/data/wordpress' # Local storage path for the WordPress volume
+  mariadb:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/Users/rpol/data/mariadb' # Local storage path for the MariaDB volume
+
+# Networks configuration
+networks:
+  inception:
+    driver: bridge

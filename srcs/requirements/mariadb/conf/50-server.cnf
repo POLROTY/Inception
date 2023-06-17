@@ -1,6 +1,10 @@
-[mysqld]
-datadir = /var/lib/mysql
-socket  = /run/mysqld/mysqld.sock
-bind_address=*
-port = 3306
-user = mysql
+[mysqld]                     # Section for server-specific options
+
+datadir = /var/lib/mysql     # Path to the data directory. This is where MariaDB stores database files.
+socket  = /run/mysqld/mysqld.sock   # Path to the Unix socket file the server uses for communication. It's often used for local connections.
+
+bind_address=0.0.0.0         # IP address to bind to. '0.0.0.0' means listen on all IPv4 addresses on the local machine.
+
+port = 3306                  # TCP/IP port number to use for the connection. The default port number for MariaDB and MySQL is 3306.
+
+user = mysql                 # The MariaDB server runs as this user. It's usually a specific user that has permissions to access required files and directories but doesn't have unnecessary privileges.

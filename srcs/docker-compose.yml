@@ -58,13 +58,13 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/Users/rpol/data/wordpress' # Local storage path for the WordPress volume
+      device: '/home/rpol/data/wordpress' # Local storage path for the WordPress volume
   mariadb:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/Users/rpol/data/mariadb' # Local storage path for the MariaDB volume
+      device: '/home/rpol/data/mariadb' # Local storage path for the MariaDB volume
 
 # Networks configuration
 networks:

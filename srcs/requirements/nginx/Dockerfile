@@ -5,7 +5,7 @@ RUN apt update -y
 RUN apt upgrade -y
 
 # intall vim to do vim stuff in container
-RUN apt install vim -y 
+#RUN apt install vim -y 
 
 # install NGINX in container
 # -y is auto yes for install and updates
@@ -24,7 +24,8 @@ RUN apt install openssl -y
 RUN mkdir -p /etc/nginx/ssl
 
 # create certificate need to comment for the different flags
-RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=localhost/UID=rpol"
+RUN openssl req \
+	-x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=localhost/UID=rpol"
 
 # create a directory to store the NGINX config file
 RUN mkdir -p /var/run/nginx

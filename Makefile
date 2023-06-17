@@ -1,39 +1,22 @@
-CXX = c++
 
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -MMD -MP
+all:
+	sudo mkdir -p /home/rpol/data/mariadb
+	sudo mkdir -p /home/rpol/data/wordpress
+	sudo chmod 777 /home/rpol/data/mariadb
+	sudo chmod 777 /home/rpol/data/wordpress
+	sudo docker-compose -f ./srcs/docker-compose.yml build
+	sudo docker-compose -f ./srcs/docker-compose.yml up -d
 
-NAME = btc
+stop:
+	sudo docker-compose -f ./srcs/docker-compose.yml stop
 
-SRCS = main.cpp \
-	   BitcoinExchange.cpp \
-
-OBJ_DIR = obj
-
-DEPS_FILES = BitcoinExchange.hpp 
-
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
-
-DEPS = $(addprefix $(OBJ_DIR)/, $(DEPS_FILES:.hpp=.d))
-
-RM = rm -f
-
-all: $(NAME)
-
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
-
-$(OBJ_DIR)/%.o: %.cpp
-	mkdir -p $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-clean:
-	rm -rf $(OBJ_DIR)
+clean: stop
+	sudo docker-compose -f ./srcs/docker-compose.yml down
+	sudo docker system prune -af
 
 fclean: clean
-	$(RM) $(NAME)
+	sudo docker volume prune -f
+	sudo rm -rf /home/rpol/data/wordpress
+	sudo rm -rf /home/rpol/data/mariadb
 
-re: fclean all
-
--include $(DEPS)
-
-.PHONY: all clean fclean re
+re : fclean all

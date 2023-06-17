@@ -1,1 +1,28 @@
-lol
+# Ignore all git files
+.git
+.gitignore
+
+# Ignore .env file
+.env
+
+# Ignore all log files
+*.log
+
+# Ignore all cache files
+__pycache__
+*.py[cod]
+*$py.class
+
+# Ignore the temporary files that are created by different OS
+*~
+.DS_Store
+._*
+.Swap*
+
+# Ignore the build and distribution directories
+dist/
+build/
+
+# Ignore the virtual environment directories
+venv/
+

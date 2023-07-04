@@ -1,42 +1,36 @@
 # Use the Debian Buster base image for this container
 FROM debian:buster
 
-# Upgrade and update apt to fetch latest information about packages
+# ugrade and update apt
 RUN apt update -y
 RUN apt upgrade -y
 
-# Install wget to download wordpress
-RUN apt-get -y install wget
+# Install wget and php with the dependencies
+RUN apt-get install -y wget   \
+					   php7.3  \
+					   php-fpm  \
+					   php-mysql \
+					   mariadb-client
 
-# Install php7.3 and the related dependencies needed to run WordPress
-RUN apt-get install -y php7.3\
-	php-fpm\
-	php-mysql\
-	mariadb-client
-
-# Download the latest WordPress version from the official WordPress website
+# Download WordPress
 RUN wget https://fr.wordpress.org/wordpress-6.0-fr_FR.tar.gz -P /var/www
 
-# Uncompress the downloaded WordPress tar file and then remove the tar file to clean up space
+# Unzip the tar and remove the zipped folder
 RUN cd /var/www && tar -xzf wordpress-6.0-fr_FR.tar.gz && rm wordpress-6.0-fr_FR.tar.gz
 
-# Copy the PHP-FPM configuration file to the appropriate directory
+# Copy the configuration file into the correct directory
 COPY ./conf/wp-config.conf /etc/php/7.3/fpm/pool.d/www.conf
 
-# Change ownership of the WordPress directory to root
+# Give root user the ownership rights to the /var/www/wordpress directory
 RUN chown -R root:root /var/www/wordpress
 
-# Download WP-CLI, a command-line interface for WordPress 
+# Install WP-CLI (WordPress Command Line Interface)
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-
-# Set execute permissions on the downloaded WP-CLI Phar file
 RUN chmod +x wp-cli.phar
+RUN mv wp-cli.phar /usr/local/bin/wp-cli.phar
 
-# Move the WP-CLI Phar file to the /usr/local/bin directory to make it accessible system-wide
-RUN mv wp-cli.phar /usr/local/bin/wp
-
-# Copy the WordPress setup script into the container
+# Copy the shell script file into the Docker container
 COPY ./tools/wp_script.sh wp_script.sh
 
-# Set the entrypoint of the Docker image to the WordPress setup script
+# Set the entry point for the Docker container to the shell script
 ENTRYPOINT ["bash", "wp_script.sh"]

@@ -1,31 +1,46 @@
 #!/bin/bash
 
-# Delay execution of the script for 10 seconds. To wait for other services to be ready.
-sleep 10
+# Sleep for 15 seconds to allow other services to initialize
+echo "Sleeping for 15 seconds to allow other services to initialize..."
+sleep 15
 
-# Check if the WordPress configuration file does not exist
-if [ ! -e /var/www/wordpress/wp-config.php ]; then
+# Check if wp-config.php file does not exist
+if [ ! -f /var/www/wordpress/wp-config.php ]; then
 
-    # Create a new wp-config.php file with database connection details
-    wp config create --allow-root --dbname=$SQL_DATABASE --dbuser=$SQL_USER --dbpass=$SQL_PASSWORD \
-                     --dbhost=mariadb:3306 --path='/var/www/wordpress'
+	echo "Configuring Wordpress..."
 
-    # Delay execution of the script for 2 seconds. To wait for the wp-config.php file to be properly created.
-    sleep 2
+	# Create the Wordpress configuration file
+	wp-cli.phar config create --allow-root \
+		--dbname=${SQL_DATABASE} \
+		--dbuser=${SQL_USER} \
+		--dbpass=${SQL_PASSWORD} \
+		--dbhost=mariadb \
+		--path='/var/www/wordpress'
+	
+	echo "Sleeping for 4 seconds before installing core..."
+	sleep 4
 
-    # Install WordPress with the given parameters
-    wp core install --url=$DOMAIN_NAME --title=$SITE_TITLE --admin_user=$ADMIN_USER --admin_password=$ADMIN_PASSWORD --admin_email=$ADMIN_EMAIL --allow-root --path='/var/www/wordpress'
-    
-    # Create a new WordPress user with the role of 'author'
-    wp user create --allow-root --role=author $USER1_LOGIN $USER1_MAIL --user_pass=$USER1_PASS --path='/var/www/wordpress' >> /log.txt
+	# Install the Wordpress core
+	wp-cli.phar core install --url=$DOMAIN_NAME \
+                             --title=$SITE_TITLE \
+		                     --admin_user=$WP_ADMIN_USER \
+                             --admin_password=$WP_ADMIN_PASWORD \
+		                     --admin_email=$WP_ADMIN_EMAIL \
+                             --skip-email --allow-root \
+		                     --path='/var/www/wordpress'
+
+	# Create a new Wordpress user
+	wp-cli.phar user create --allow-root \
+                            --role=author $WP_USER1_USER $WP_USER1_EMAIL \
+		                    --user_pass=$WP_USER1_PASSWORD \
+                            --path='/var/www/wordpress' >> /log.txt
+
+	echo "Wordpress configuration is done!"
+
 fi
 
-# Check if the /run/php directory does not exist
-if [ ! -d /run/php ]; then
-
-    # Create the /run/php directory. This directory is needed for PHP-FPM.
-    mkdir ./run/php
-fi
-
-# Start the PHP-FPM service. The '-F' option runs PHP-FPM in the foreground, which is often used when running PHP-FPM in Docker.
+# Run PHP-FPM
+echo "Starting PHP-FPM..."
 /usr/sbin/php-fpm7.3 -F
+
+
